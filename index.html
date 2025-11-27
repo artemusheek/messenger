@@ -1,401 +1,67 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мессенджер по коду (без сервера)</title>
+    <title>Тест мессенджер</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .content {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .section {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        input, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #764ba2;
-        }
-        .message {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            background: #e3f2fd;
-        }
-        .message.own {
-            background: #f3e5f5;
-            text-align: right;
-        }
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4caf50;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1000;
-        }
-        .chat-window {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            background: white;
-        }
-        .user-code {
-            background: #e8f5e8;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .online-users {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
+        body { font-family: Arial; padding: 20px; }
+        .message { padding: 10px; margin: 5px; border-radius: 5px; }
+        .out { background: #dcf8c6; text-align: right; }
+        .in { background: #fff; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
-    <div class="notification" id="notification">
-        📢 Новое сообщение!
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <h1>📱 Мессенджер по коду</h1>
-            <p>Работает полностью в браузере без серверов!</p>
-        </div>
-
-        <div class="content">
-            <!-- Регистрация -->
-            <div class="section">
-                <h3>📝 Ваш профиль</h3>
-                <input type="text" id="userCode" placeholder="Ваш уникальный код (например: user123)">
-                <input type="text" id="userName" placeholder="Ваше имя">
-                <button onclick="createUser()">Активировать профиль</button>
-                
-                <div class="user-code" id="userInfo" style="display: none;">
-                    <strong>Ваш код для получения сообщений:</strong>
-                    <div id="displayCode" style="font-size: 18px; font-weight: bold; color: #2c3e50;"></div>
-                    <small>Дайте этот код друзьям, чтобы они могли писать вам</small>
-                </div>
-            </div>
-
-            <!-- Отправка сообщений -->
-            <div class="section">
-                <h3>✉️ Отправить сообщение</h3>
-                <input type="text" id="targetCode" placeholder="Код получателя (например: user456)">
-                <textarea id="messageText" placeholder="Ваше сообщение" rows="3"></textarea>
-                <button onclick="sendMessage()">Отправить сообщение</button>
-            </div>
-
-            <!-- Чат -->
-            <div class="section">
-                <h3>💬 Чат с: <span id="currentChatWith">-</span></h3>
-                <div class="chat-window" id="chatWindow">
-                    <div style="text-align: center; color: #666; padding: 20px;">
-                        Сообщения появятся здесь
-                    </div>
-                </div>
-                <button onclick="clearChat()">Очистить чат</button>
-            </div>
-
-            <!-- Инструкция -->
-            <div class="section">
-                <h3>❓ Как пользоваться</h3>
-                <ol style="margin-left: 20px; margin-top: 10px;">
-                    <li>Придумайте и введите свой уникальный код</li>
-                    <li>Дайте свой код друзьям</li>
-                    <li>Введите код друга и отправьте сообщение</li>
-                    <li>Сообщения сохраняются в этом браузере</li>
-                </ol>
-            </div>
-        </div>
-    </div>
+    <h2>Тестовый чат (откройте в двух вкладках)</h2>
+    
+    <input type="text" id="user" placeholder="Ваше имя" value="User1">
+    <input type="text" id="message" placeholder="Сообщение">
+    <button onclick="sendMessage()">Отправить</button>
+    
+    <div id="chat"></div>
 
     <script>
-        // Хранилище сообщений в LocalStorage
-        let messages = JSON.parse(localStorage.getItem('messenger_messages')) || {};
-        let currentUser = JSON.parse(localStorage.getItem('current_user')) || null;
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            if (currentUser) {
-                loadUserProfile(currentUser);
-            }
-            loadChatHistory();
-        });
-
-        // Создание/активация пользователя
-        function createUser() {
-            const code = document.getElementById('userCode').value.trim();
-            const name = document.getElementById('userName').value.trim();
-            
-            if (!code || !name) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-
-            currentUser = { code, name };
-            localStorage.setItem('current_user', JSON.stringify(currentUser));
-            
-            // Инициализируем хранилище сообщений для пользователя
-            if (!messages[code]) {
-                messages[code] = [];
-            }
-            localStorage.setItem('messenger_messages', JSON.stringify(messages));
-            
-            loadUserProfile(currentUser);
-            showNotification('✅ Профиль активирован!');
-        }
-
-        // Загрузка профиля пользователя
-        function loadUserProfile(user) {
-            document.getElementById('userCode').value = user.code;
-            document.getElementById('userName').value = user.name;
-            document.getElementById('displayCode').textContent = user.code;
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('status').textContent = `Активен: ${user.name} (${user.code})`;
-        }
-
-        // Отправка сообщения
+        // Используем localStorage для симуляции обмена сообщениями
         function sendMessage() {
-            if (!currentUser) {
-                alert('Сначала создайте профиль');
-                return;
-            }
-
-            const toCode = document.getElementById('targetCode').value.trim();
-            const messageText = document.getElementById('messageText').value.trim();
+            const user = document.getElementById('user').value;
+            const message = document.getElementById('message').value;
             
-            if (!toCode || !messageText) {
-                alert('Заполните код получателя и сообщение');
-                return;
-            }
-
-            // Создаем сообщение
-            const message = {
-                id: Date.now(),
-                from: currentUser.code,
-                fromName: currentUser.name,
-                to: toCode,
-                text: messageText,
-                timestamp: new Date().toLocaleTimeString(),
-                date: new Date().toLocaleDateString()
-            };
-
-            // Сохраняем сообщение для получателя
-            if (!messages[toCode]) {
-                messages[toCode] = [];
-            }
-            messages[toCode].push(message);
+            if (!message) return;
             
-            // Также сохраняем в свою историю для отображения
-            if (!messages[currentUser.code]) {
-                messages[currentUser.code] = [];
-            }
-            messages[currentUser.code].push(message);
-
-            // Сохраняем в LocalStorage
-            localStorage.setItem('messenger_messages', JSON.stringify(messages));
-
-            // Очищаем поле сообщения
-            document.getElementById('messageText').value = '';
-
-            // Показываем уведомление (эмулируем получение)
-            showNotification('✅ Сообщение отправлено!');
+            // Сохраняем сообщение
+            const messages = JSON.parse(localStorage.getItem('chat_messages') || '[]');
+            messages.push({ user, message, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('chat_messages', JSON.stringify(messages));
             
-            // Обновляем историю чата
-            loadChatHistory();
-
-            // Эмулируем автоматический ответ (опционально)
-            simulateAutoReply(toCode, messageText);
+            // Добавляем в чат
+            addMessageToChat(user, message, true);
+            document.getElementById('message').value = '';
         }
 
-        // Функция эмуляции автоматического ответа (для демонстрации)
-        function simulateAutoReply(toCode, originalMessage) {
-            // Ждем 3 секунды и отправляем "автоответ"
-            setTimeout(() => {
-                const autoReplies = [
-                    "Привет! Я получил ваше сообщение: '" + originalMessage + "'",
-                    "Спасибо за сообщение! Я как раз собирался вам написать",
-                    "Интересно! Давайте обсудим это подробнее",
-                    "Я в пути, отвечу позже более подробно",
-                    "Получил ваше сообщение 👍"
-                ];
-                
-                const randomReply = autoReplies[Math.floor(Math.random() * autoReplies.length)];
-                
-                const autoMessage = {
-                    id: Date.now() + 1,
-                    from: toCode,
-                    fromName: 'Авто-ответ',
-                    to: currentUser.code,
-                    text: randomReply,
-                    timestamp: new Date().toLocaleTimeString(),
-                    date: new Date().toLocaleDateString()
-                };
-
-                if (!messages[currentUser.code]) {
-                    messages[currentUser.code] = [];
-                }
-                messages[currentUser.code].push(autoMessage);
-                
-                localStorage.setItem('messenger_messages', JSON.stringify(messages));
-                
-                showNotification('📨 Новое сообщение!');
-                loadChatHistory();
-            }, 3000);
+        function addMessageToChat(user, message, isOwn) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = `message ${isOwn ? 'out' : 'in'}`;
+            div.innerHTML = `<strong>${user}:</strong> ${message} <small>${new Date().toLocaleTimeString()}</small>`;
+            chat.appendChild(div);
         }
 
-        // Загрузка истории чата
-        function loadChatHistory() {
-            const toCode = document.getElementById('targetCode').value.trim();
-            const chatWindow = document.getElementById('chatWindow');
+        // Проверяем новые сообщения
+        function checkMessages() {
+            const messages = JSON.parse(localStorage.getItem('chat_messages') || '[]');
+            const currentUser = document.getElementById('user').value;
+            const chat = document.getElementById('chat');
             
-            if (!toCode) {
-                chatWindow.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Введите код пользователя для просмотра переписки</div>';
-                return;
-            }
-
-            document.getElementById('currentChatWith').textContent = toCode;
+            // Показываем только последние 10 сообщений
+            const recentMessages = messages.slice(-10);
+            chat.innerHTML = '';
             
-            let chatHTML = '';
-            const userMessages = messages[currentUser?.code] || [];
-
-            // Фильтруем сообщения текущего чата
-            const chatMessages = userMessages.filter(msg => 
-                (msg.from === currentUser.code && msg.to === toCode) || 
-                (msg.from === toCode && msg.to === currentUser.code)
-            );
-
-            // Сортируем по времени
-            chatMessages.sort((a, b) => a.id - b.id);
-
-            if (chatMessages.length === 0) {
-                chatHTML = '<div style="text-align: center; color: #666; padding: 20px;">Нет сообщений. Начните общение!</div>';
-            } else {
-                chatMessages.forEach(msg => {
-                    const isOwn = msg.from === currentUser.code;
-                    chatHTML += `
-                        <div class="message ${isOwn ? 'own' : ''}">
-                            <strong>${isOwn ? 'Вы' : msg.fromName}:</strong> 
-                            ${msg.text}
-                            <br>
-                            <small>${msg.timestamp} ${msg.date}</small>
-                        </div>
-                    `;
-                });
-            }
-
-            chatWindow.innerHTML = chatHTML;
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+            recentMessages.forEach(msg => {
+                addMessageToChat(msg.user, msg.message, msg.user === currentUser);
+            });
         }
 
-        // Показать уведомление
-        function showNotification(text) {
-            const notification = document.getElementById('notification');
-            notification.textContent = text;
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-
-        // Очистить чат (только визуально)
-        function clearChat() {
-            const chatWindow = document.getElementById('chatWindow');
-            chatWindow.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Чат очищен</div>';
-        }
-
-        // Экспорт данных (для резервной копии)
-        function exportData() {
-            const data = {
-                user: currentUser,
-                messages: messages,
-                exportDate: new Date().toISOString()
-            };
-            const dataStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `messenger_backup_${new Date().getTime()}.json`;
-            a.click();
-        }
-
-        // Импорт данных
-        function importData(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        if (data.user) currentUser = data.user;
-                        if (data.messages) messages = data.messages;
-                        
-                        localStorage.setItem('current_user', JSON.stringify(currentUser));
-                        localStorage.setItem('messenger_messages', JSON.stringify(messages));
-                        
-                        showNotification('✅ Данные восстановлены!');
-                        location.reload();
-                    } catch (error) {
-                        alert('Ошибка при импорте файла');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        }
+        // Проверяем каждую секунду
+        setInterval(checkMessages, 1000);
+        checkMessages(); // Первоначальная загрузка
     </script>
 </body>
 </html>
