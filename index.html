@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Мессенджер с регистрацией</title>
+    <title>Artemusheek Мессенджер с регистрацией</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <style>
@@ -221,7 +221,7 @@
 
     <div class="container">
         <div class="header">
-            <h1>🔥 Firebase Мессенджер</h1>
+            <h1>🔥 Artemusheek Мессенджер</h1>
             <p id="headerSubtitle">Регистрация и реальные сообщения!</p>
         </div>
 
@@ -229,7 +229,7 @@
             <!-- Секция регистрации -->
             <section id="registrationSection">
                 <div class="registration-form">
-                    <h2 style="margin-bottom: 30px; color: #2c3e50;">📝 Регистрация в Firebase</h2>
+                    <h2 style="margin-bottom: 30px; color: #2c3e50;">📝 Регистрация в artemusheek/h2>
                     
                     <div class="form-group">
                         <label for="regUsername">Ваш никнейм:</label>
@@ -249,7 +249,7 @@
                     </div>
                     
                     <button class="btn btn-primary" onclick="registerUser()">
-                        ✅ Зарегистрироваться в Firebase
+                        ✅ Зарегистрироваться в artemusheek messenger
                     </button>
 
                     <div id="registrationStatus" style="margin-top: 15px; padding: 10px; border-radius: 5px; display: none;"></div>
@@ -264,7 +264,7 @@
                         <div style="flex: 1;">
                             <h3>👋 Привет, <span id="displayUserName"></span>!</h3>
                             <p>Ваш код: <strong id="displayUserCode"></strong> • 
-                               <span id="onlineStatus" style="color: #28a745;">● Онлайн в Firebase</span></p>
+                               <span id="onlineStatus" style="color: #28a745;">● Онлайн в artemusheek messenger</span></p>
                         </div>
                         <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
                     </div>
@@ -282,7 +282,7 @@
                 <div class="chat-window" id="chatWindow">
                     <div style="text-align: center; color: #666; padding: 50px;">
                         <div style="font-size: 48px; margin-bottom: 20px;">💭</div>
-                        <h3>Начните общение в Firebase!</h3>
+                        <h3>Начните общение в artemusheek messenger!</h3>
                         <p>Найдите пользователя по коду и отправьте первое сообщение</p>
                     </div>
                 </div>
@@ -290,7 +290,7 @@
                 <!-- Поле ввода сообщения -->
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="messageInput" placeholder="💬 Введите ваше сообщение..." style="flex: 1;">
-                    <button class="btn btn-primary" onclick="sendMessage()">📤 Отправить в Firebase</button>
+                    <button class="btn btn-primary" onclick="sendMessage()">📤 Отправить</button>
                 </div>
 
                 <!-- Информация о текущем чате -->
@@ -421,7 +421,7 @@
                 
                 setTimeout(() => {
                     showChatSection();
-                    showNotification('🔥 Добро пожаловать в Firebase мессенджер!');
+                    showNotification('🔥 Добро пожаловать в artemusheek messenger!');
                 }, 1000);
 
             } catch (error) {
