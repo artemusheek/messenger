@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Мессенджер</title>
+    <title>Firebase Мессенджер с регистрацией</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <style>
@@ -33,43 +33,75 @@
             text-align: center;
         }
         .content {
-            padding: 20px;
+            padding: 30px;
         }
-        .section {
+        
+        /* Стили для регистрации */
+        #registrationSection {
+            text-align: center;
+        }
+        .registration-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
             background: #f8f9fa;
-            padding: 15px;
-            margin: 15px 0;
             border-radius: 10px;
             border-left: 4px solid #667eea;
         }
-        input, textarea, button {
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .form-group input {
             width: 100%;
             padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        /* Стили для чата */
+        #chatSection {
+            display: none;
+        }
+        .user-profile {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .chat-controls input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
         }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-        button:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-        }
         .chat-window {
             height: 400px;
-            overflow-y: auto;
             border: 2px solid #e9ecef;
             border-radius: 10px;
             padding: 15px;
             background: white;
-            margin: 15px 0;
+            overflow-y: auto;
+            margin-bottom: 15px;
         }
         .message {
             padding: 12px;
@@ -77,6 +109,7 @@
             border-radius: 12px;
             max-width: 80%;
             word-wrap: break-word;
+            position: relative;
         }
         .my-message {
             background: #007bff;
@@ -88,11 +121,51 @@
             background: #e9ecef;
             color: #333;
         }
-        .message-info {
-            font-size: 12px;
+        .message-sender {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .message-time {
+            font-size: 11px;
             opacity: 0.8;
             margin-top: 5px;
         }
+        
+        /* Кнопки */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        /* Уведомления */
         .notification {
             position: fixed;
             top: 20px;
@@ -105,16 +178,39 @@
             display: none;
             z-index: 1000;
         }
-        .user-info {
-            background: #d4edda;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
+        
+        /* Аватарки */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
         }
-        .typing {
-            color: #666;
-            font-style: italic;
-            padding: 5px;
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        /* Индикатор загрузки */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -126,176 +222,468 @@
     <div class="container">
         <div class="header">
             <h1>🔥 Firebase Мессенджер</h1>
-            <p>Реальные сообщения в реальном времени!</p>
+            <p id="headerSubtitle">Регистрация и реальные сообщения!</p>
         </div>
 
         <div class="content">
-            <!-- Профиль пользователя -->
-            <div class="section">
-                <h3>👤 Ваш профиль</h3>
-                <input type="text" id="username" placeholder="Введите ваше имя" value="User1">
-                <input type="text" id="userCode" placeholder="Ваш уникальный код" value="user001">
-                <button onclick="saveUserProfile()">Сохранить профиль</button>
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <strong>✅ Профиль активен:</strong>
-                    <div>Имя: <span id="displayName"></span></div>
-                    <div>Код: <span id="displayCode"></span></div>
-                    <small>Дайте ваш код друзьям для общения</small>
+            <!-- Секция регистрации -->
+            <section id="registrationSection">
+                <div class="registration-form">
+                    <h2 style="margin-bottom: 30px; color: #2c3e50;">📝 Регистрация в Firebase</h2>
+                    
+                    <div class="form-group">
+                        <label for="regUsername">Ваш никнейм:</label>
+                        <input type="text" id="regUsername" placeholder="Придумайте уникальный ник" maxlength="20">
+                        <small style="color: #666;">Это имя будут видеть другие пользователи</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="regUserCode">Ваш уникальный код:</label>
+                        <input type="text" id="regUserCode" placeholder="Например: superuser123" maxlength="15">
+                        <small style="color: #666;">Дайте этот код друзьям для общения</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="regAvatar">Цвет аватарки:</label>
+                        <input type="color" id="regAvatar" value="#667eea" style="height: 50px;">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="registerUser()">
+                        ✅ Зарегистрироваться в Firebase
+                    </button>
+
+                    <div id="registrationStatus" style="margin-top: 15px; padding: 10px; border-radius: 5px; display: none;"></div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Отправка сообщений -->
-            <div class="section">
-                <h3>✉️ Отправить сообщение</h3>
-                <input type="text" id="targetUserCode" placeholder="Код получателя (например: user002)">
-                <textarea id="messageInput" placeholder="Введите ваше сообщение..." rows="3"></textarea>
-                <button onclick="sendMessage()">Отправить сообщение</button>
-                <div id="typingStatus" class="typing"></div>
-            </div>
-
-            <!-- Чат -->
-            <div class="section">
-                <h3>💬 Чат с: <span id="chatWith">всем</span></h3>
-                <div class="chat-window" id="chatWindow">
-                    <div style="text-align: center; color: #666; padding: 40px;">
-                        Сообщения будут появляться здесь в реальном времени
+            <!-- Секция чата -->
+            <section id="chatSection">
+                <!-- Профиль пользователя -->
+                <div class="user-profile">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <h3>👋 Привет, <span id="displayUserName"></span>!</h3>
+                            <p>Ваш код: <strong id="displayUserCode"></strong> • 
+                               <span id="onlineStatus" style="color: #28a745;">● Онлайн в Firebase</span></p>
+                        </div>
+                        <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
                     </div>
                 </div>
-                <button onclick="clearChat()">Очистить чат</button>
-            </div>
 
-            <!-- Статус -->
-            <div class="section">
-                <h3>📊 Статус</h3>
-                <div id="status">Подключение к Firebase...</div>
-            </div>
+                <!-- Поиск пользователя -->
+                <div class="chat-controls">
+                    <input type="text" id="targetUserCode" placeholder="✍️ Введите код пользователя...">
+                    <button class="btn btn-success" onclick="checkUserAndStartChat()">🔍 Найти и начать чат</button>
+                </div>
+
+                <div id="userSearchResult" style="margin-bottom: 15px; display: none;"></div>
+
+                <!-- Окно чата -->
+                <div class="chat-window" id="chatWindow">
+                    <div style="text-align: center; color: #666; padding: 50px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">💭</div>
+                        <h3>Начните общение в Firebase!</h3>
+                        <p>Найдите пользователя по коду и отправьте первое сообщение</p>
+                    </div>
+                </div>
+
+                <!-- Поле ввода сообщения -->
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="messageInput" placeholder="💬 Введите ваше сообщение..." style="flex: 1;">
+                    <button class="btn btn-primary" onclick="sendMessage()">📤 Отправить в Firebase</button>
+                </div>
+
+                <!-- Информация о текущем чате -->
+                <div id="currentChatInfo" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; display: none;">
+                    💬 Чат с: <strong id="currentChatWith">-</strong>
+                    <span id="userOnlineStatus" style="margin-left: 10px;"></span>
+                </div>
+            </section>
         </div>
     </div>
 
     <script>
         // 🔥 ЗАМЕНИТЕ ЭТУ КОНФИГУРАЦИЮ НА СВОЮ ИЗ FIREBASE
-const firebaseConfig = {
-  apiKey: "AIzaSyD9MIiOsdps10zDZhaNjnkPj--QXX0o8yc",
-  authDomain: "messenger-f7cbd.firebaseapp.com",
-  databaseURL: "https://messenger-f7cbd-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "messenger-f7cbd",
-  storageBucket: "messenger-f7cbd.firebasestorage.app",
-  messagingSenderId: "584298804782",
-  appId: "1:584298804782:web:c2fc0a168311aca5ed11bf",
-  measurementId: "G-9WT3KHJ4GM"
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
         };
 
         // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let currentUser = {
-            name: '',
-            code: ''
-        };
+        let currentUser = null;
+        let currentChatUser = null;
+        let messagesListener = null;
 
-        // Сохраняем профиль пользователя
-        function saveUserProfile() {
-            const name = document.getElementById('username').value.trim();
-            const code = document.getElementById('userCode').value.trim();
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем, есть ли сохраненный пользователь
+            const savedUser = localStorage.getItem('firebase_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                checkUserExists(currentUser.code).then(exists => {
+                    if (exists) {
+                        showChatSection();
+                    } else {
+                        localStorage.removeItem('firebase_user');
+                        showRegistrationSection();
+                    }
+                });
+            } else {
+                showRegistrationSection();
+            }
+        });
+
+        // Показать секцию регистрации
+        function showRegistrationSection() {
+            document.getElementById('registrationSection').style.display = 'block';
+            document.getElementById('chatSection').style.display = 'none';
+            document.getElementById('headerSubtitle').textContent = 'Сначала зарегистрируйтесь в Firebase!';
+        }
+
+        // Показать секцию чата
+        function showChatSection() {
+            document.getElementById('registrationSection').style.display = 'none';
+            document.getElementById('chatSection').style.display = 'block';
+            document.getElementById('headerSubtitle').textContent = `Общайтесь, ${currentUser.name}!`;
             
-            if (!name || !code) {
-                alert('Пожалуйста, заполните все поля');
+            // Обновляем информацию о пользователе
+            document.getElementById('displayUserName').textContent = currentUser.name;
+            document.getElementById('displayUserCode').textContent = currentUser.code;
+            
+            // Обновляем онлайн статус
+            updateUserOnlineStatus(true);
+        }
+
+        // Проверить существование пользователя
+        async function checkUserExists(userCode) {
+            try {
+                const snapshot = await database.ref('users/' + userCode).once('value');
+                return snapshot.exists();
+            } catch (error) {
+                console.error('Ошибка проверки пользователя:', error);
+                return false;
+            }
+        }
+
+        // Регистрация пользователя в Firebase
+        async function registerUser() {
+            const username = document.getElementById('regUsername').value.trim();
+            const usercode = document.getElementById('regUserCode').value.trim().toLowerCase();
+            const avatarColor = document.getElementById('regAvatar').value;
+
+            if (!username || !usercode) {
+                showRegistrationStatus('Пожалуйста, заполните все поля', 'error');
                 return;
             }
 
-            currentUser = { name, code };
-            
-            // Сохраняем в Firebase
-            database.ref('users/' + code).set({
-                name: name,
-                lastSeen: new Date().toISOString()
-            });
+            if (usercode.length < 3) {
+                showRegistrationStatus('Код должен быть не менее 3 символов', 'error');
+                return;
+            }
 
-            // Показываем информацию о пользователе
-            document.getElementById('displayName').textContent = name;
-            document.getElementById('displayCode').textContent = code;
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('status').textContent = '✅ Подключено к Firebase';
-            
-            showNotification('Профиль сохранен!');
-            
-            // Начинаем слушать сообщения
-            startListeningToMessages();
+            // Показываем загрузку
+            showRegistrationStatus('Проверяем доступность кода...', 'loading');
+
+            // Проверяем, свободен ли код
+            const userExists = await checkUserExists(usercode);
+            if (userExists) {
+                showRegistrationStatus('Этот код уже занят! Выберите другой.', 'error');
+                return;
+            }
+
+            // Регистрируем пользователя в Firebase
+            try {
+                const userData = {
+                    name: username,
+                    code: usercode,
+                    avatarColor: avatarColor,
+                    registeredAt: new Date().toISOString(),
+                    lastSeen: Date.now(),
+                    online: true
+                };
+
+                await database.ref('users/' + usercode).set(userData);
+                
+                // Сохраняем локально
+                currentUser = userData;
+                localStorage.setItem('firebase_user', JSON.stringify(currentUser));
+
+                showRegistrationStatus('✅ Регистрация успешна! Подключаемся...', 'success');
+                
+                setTimeout(() => {
+                    showChatSection();
+                    showNotification('🔥 Добро пожаловать в Firebase мессенджер!');
+                }, 1000);
+
+            } catch (error) {
+                showRegistrationStatus('Ошибка регистрации: ' + error.message, 'error');
+            }
         }
 
-        // Отправка сообщения
-        function sendMessage() {
-            const targetCode = document.getElementById('targetUserCode').value.trim();
+        // Поиск пользователя и начало чата
+        async function checkUserAndStartChat() {
+            const targetCode = document.getElementById('targetUserCode').value.trim().toLowerCase();
+            
+            if (!targetCode) {
+                alert('Введите код пользователя');
+                return;
+            }
+
+            if (targetCode === currentUser.code) {
+                alert('Нельзя писать самому себе!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('userSearchResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loader"></div>';
+
+            try {
+                const userExists = await checkUserExists(targetCode);
+                
+                if (userExists) {
+                    // Получаем информацию о пользователе
+                    const snapshot = await database.ref('users/' + targetCode).once('value');
+                    const userInfo = snapshot.val();
+                    
+                    currentChatUser = targetCode;
+                    
+                    resultDiv.innerHTML = `
+                        <div style="background: #d4edda; padding: 10px; border-radius: 5px;">
+                            ✅ Найден пользователь: <strong>${userInfo.name}</strong>
+                            <button class="btn btn-success" onclick="startChatWithUser('${targetCode}', '${userInfo.name}')" style="margin-left: 10px; padding: 5px 10px;">
+                                💬 Начать чат
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #f8d7da; padding: 10px; border-radius: 5px;">
+                            ❌ Пользователь с кодом "${targetCode}" не найден
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #f8d7da; padding: 10px; border-radius: 5px;">
+                        ❌ Ошибка поиска: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Начать чат с пользователем
+        function startChatWithUser(userCode, userName) {
+            currentChatUser = userCode;
+            document.getElementById('currentChatWith').textContent = `${userName} (${userCode})`;
+            document.getElementById('currentChatInfo').style.display = 'block';
+            document.getElementById('userSearchResult').style.display = 'none';
+            
+            // Загружаем историю сообщений
+            loadChatHistory();
+            
+            // Слушаем новые сообщения
+            startMessagesListener();
+            
+            showNotification(`💬 Чат с ${userName} начат!`);
+        }
+
+        // Отправка сообщения в Firebase
+        async function sendMessage() {
+            if (!currentChatUser) {
+                alert('Сначала выберите пользователя для чата');
+                return;
+            }
+
             const messageText = document.getElementById('messageInput').value.trim();
             
-            if (!currentUser.code) {
-                alert('Сначала сохраните ваш профиль');
-                return;
-            }
-            
-            if (!targetCode || !messageText) {
-                alert('Введите код получателя и сообщение');
+            if (!messageText) {
+                alert('Введите сообщение');
                 return;
             }
 
-            // Создаем объект сообщения
-            const message = {
-                from: currentUser.code,
-                fromName: currentUser.name,
-                to: targetCode,
-                text: messageText,
-                timestamp: Date.now(),
-                date: new Date().toLocaleString()
-            };
+            try {
+                // Создаем сообщение
+                const message = {
+                    id: Date.now(),
+                    from: currentUser.code,
+                    fromName: currentUser.name,
+                    to: currentChatUser,
+                    text: messageText,
+                    timestamp: Date.now(),
+                    avatarColor: currentUser.avatarColor,
+                    read: false
+                };
 
-            // Сохраняем в Firebase
-            database.ref('messages').push(message);
-            
-            // Очищаем поле ввода
-            document.getElementById('messageInput').value = '';
-            
-            // Показываем свое сообщение в чате
-            addMessageToChat(message, true);
+                // Сохраняем в Firebase
+                await database.ref('messages').push(message);
+                
+                // Очищаем поле ввода
+                document.getElementById('messageInput').value = '';
+                
+                // Обновляем онлайн статус
+                updateUserOnlineStatus(true);
+
+            } catch (error) {
+                alert('Ошибка отправки: ' + error.message);
+            }
         }
 
-        // Слушаем новые сообщения
-        function startListeningToMessages() {
-            database.ref('messages').on('child_added', (snapshot) => {
+        // Слушатель новых сообщений
+        function startMessagesListener() {
+            // Удаляем предыдущий слушатель если есть
+            if (messagesListener) {
+                messagesListener();
+            }
+
+            messagesListener = database.ref('messages').on('child_added', (snapshot) => {
                 const message = snapshot.val();
                 
-                // Показываем сообщение если оно для нас или от нас
-                if (message.to === currentUser.code || message.from === currentUser.code) {
+                // Показываем сообщение если оно для нас или от нас в текущем чате
+                if ((message.to === currentUser.code && message.from === currentChatUser) || 
+                    (message.from === currentUser.code && message.to === currentChatUser)) {
+                    
                     const isMyMessage = message.from === currentUser.code;
                     addMessageToChat(message, isMyMessage);
                     
                     if (!isMyMessage) {
                         showNotification(`📨 Новое сообщение от ${message.fromName}`);
+                        
+                        // Помечаем как прочитанное
+                        database.ref('messages/' + snapshot.key).update({ read: true });
                     }
                 }
             });
         }
 
-        // Добавляем сообщение в чат
+        // Загрузка истории чата
+        async function loadChatHistory() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.innerHTML = '<div class="loader"></div>';
+
+            try {
+                const snapshot = await database.ref('messages').once('value');
+                const allMessages = snapshot.val();
+                const chatMessages = [];
+
+                // Фильтруем сообщения для текущего чата
+                for (let key in allMessages) {
+                    const msg = allMessages[key];
+                    if ((msg.from === currentUser.code && msg.to === currentChatUser) || 
+                        (msg.from === currentChatUser && msg.to === currentUser.code)) {
+                        chatMessages.push(msg);
+                    }
+                }
+
+                // Сортируем по времени
+                chatMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+                if (chatMessages.length === 0) {
+                    chatWindow.innerHTML = `
+                        <div style="text-align: center; color: #666; padding: 50px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">👋</div>
+                            <h3>Начните диалог!</h3>
+                            <p>Отправьте первое сообщение пользователю</p>
+                        </div>
+                    `;
+                } else {
+                    chatWindow.innerHTML = '';
+                    chatMessages.forEach(msg => {
+                        const isMyMessage = msg.from === currentUser.code;
+                        addMessageToChat(msg, isMyMessage);
+                    });
+                    
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
+            } catch (error) {
+                chatWindow.innerHTML = `
+                    <div style="text-align: center; color: #dc3545; padding: 20px;">
+                        ❌ Ошибка загрузки сообщений: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Добавить сообщение в чат
         function addMessageToChat(message, isMyMessage) {
             const chatWindow = document.getElementById('chatWindow');
             
-            // Убираем placeholder если он есть
-            if (chatWindow.innerHTML.includes('Сообщения будут появляться')) {
+            // Убираем placeholder при первом сообщении
+            if (chatWindow.innerHTML.includes('Начните диалог') || chatWindow.querySelector('.loader')) {
                 chatWindow.innerHTML = '';
             }
 
+            const avatarColor = message.avatarColor || '#667eea';
+            const initials = message.fromName.charAt(0).toUpperCase();
+            const time = new Date(message.timestamp).toLocaleTimeString();
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isMyMessage ? 'my-message' : 'other-message'}`;
             
             messageDiv.innerHTML = `
-                <div><strong>${isMyMessage ? 'Вы' : message.fromName}:</strong></div>
-                <div>${message.text}</div>
-                <div class="message-info">${new Date(message.timestamp).toLocaleTimeString()}</div>
+                <div class="message-header">
+                    <div class="avatar" style="background: ${avatarColor}">${initials}</div>
+                    <div class="message-sender">${message.fromName}</div>
+                </div>
+                <div class="message-text">${message.text}</div>
+                <div class="message-time">${time}</div>
             `;
             
             chatWindow.appendChild(messageDiv);
             chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Обновить онлайн статус
+        function updateUserOnlineStatus(online) {
+            if (!currentUser) return;
+            
+            database.ref('users/' + currentUser.code).update({
+                online: online,
+                lastSeen: Date.now()
+            });
+        }
+
+        // Выход из системы
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                // Обновляем статус
+                updateUserOnlineStatus(false);
+                
+                // Удаляем слушатель
+                if (messagesListener) {
+                    messagesListener();
+                }
+                
+                // Очищаем данные
+                currentUser = null;
+                currentChatUser = null;
+                localStorage.removeItem('firebase_user');
+                
+                showRegistrationSection();
+                showNotification('👋 До свидания! Возвращайтесь!');
+            }
+        }
+
+        // Показать статус регистрации
+        function showRegistrationStatus(message, type) {
+            const statusDiv = document.getElementById('registrationStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = message;
+            
+            statusDiv.style.background = type === 'error' ? '#f8d7da' : 
+                                       type === 'success' ? '#d4edda' : 
+                                       type === 'loading' ? '#fff3cd' : '#f8f9fa';
+            statusDiv.style.color = type === 'error' ? '#721c24' : 
+                                  type === 'success' ? '#155724' : 
+                                  type === 'loading' ? '#856404' : '#333';
         }
 
         // Показать уведомление
@@ -309,20 +697,31 @@ const firebaseConfig = {
             }, 3000);
         }
 
-        // Очистить чат (только локально)
-        function clearChat() {
-            const chatWindow = document.getElementById('chatWindow');
-            chatWindow.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">Чат очищен</div>';
-        }
-
-        // Автоматическое сохранение при нажатии Enter
+        // Обработка нажатия Enter
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        console.log('Firebase мессенджер загружен!');
+        document.getElementById('regUserCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                registerUser();
+            }
+        });
+
+        document.getElementById('targetUserCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkUserAndStartChat();
+            }
+        });
+
+        // Обновляем онлайн статус при закрытии страницы
+        window.addEventListener('beforeunload', function() {
+            if (currentUser) {
+                updateUserOnlineStatus(false);
+            }
+        });
     </script>
 </body>
 </html>
