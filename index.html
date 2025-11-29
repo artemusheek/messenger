@@ -509,7 +509,7 @@
 
     <script>
         // 🔥 ЗАМЕНИТЕ ЭТУ КОНФИГУРАЦИЮ НА СВОЮ ИЗ FIREBASE
-   const firebaseConfig = {
+      const firebaseConfig = {
   apiKey: "AIzaSyD9MIiOsdps10zDZhaNjnkPj--QXX0o8yc",
   authDomain: "messenger-f7cbd.firebaseapp.com",
   databaseURL: "https://messenger-f7cbd-default-rtdb.europe-west1.firebasedatabase.app",
@@ -531,6 +531,7 @@
         const database = firebase.database();
         let currentUser = null;
         let currentGroup = null;
+        let messagesListener = null;
 
         // Показать/скрыть модальное окно
         function showModal(modalId) {
@@ -547,9 +548,9 @@
                 this.value === 'private' ? 'block' : 'none';
         });
 
-        // Регистрация пользователя - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // Регистрация пользователя
         async function registerUser() {
-            console.log('🔔 Функция registerUser вызвана'); // Отладочное сообщение
+            console.log('🔔 Функция registerUser вызвана');
             
             const username = document.getElementById('regUsername').value.trim().toLowerCase();
             const displayName = document.getElementById('regDisplayName').value.trim();
@@ -595,7 +596,7 @@
                 const userData = {
                     username: username,
                     displayName: displayName,
-                    password: btoa(password), // Простое шифрование
+                    password: btoa(password),
                     registeredAt: new Date().toISOString(),
                     lastSeen: Date.now(),
                     online: true
@@ -619,7 +620,7 @@
             }
         }
 
-        // Вход пользователя - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // Вход пользователя
         async function loginUser() {
             console.log('🔔 Функция loginUser вызвана');
             
@@ -770,7 +771,7 @@
                 });
 
                 closeModal('joinGroupModal');
-                showStatus('✅ Вы присоединились к группе!', 'success');
+                showStatus('✅ Вы присоединились к группу!', 'success');
                 
                 // Переходим в группу
                 selectGroup(groupId, group);
@@ -887,6 +888,7 @@
             
             // Загружаем сообщения группы
             loadGroupMessages(groupId);
+            startMessagesListener(groupId);
             
             // Подсвечиваем выбранную группу
             document.querySelectorAll('.group-item').forEach(item => {
@@ -934,6 +936,24 @@
             }
         }
 
+        // Слушатель сообщений в реальном времени
+        function startMessagesListener(groupId) {
+            // Удаляем предыдущий слушатель если есть
+            if (messagesListener) {
+                messagesListener();
+            }
+
+            // Слушаем новые сообщения в текущей группе
+            messagesListener = database.ref('group_messages/' + groupId).on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                // Проверяем, что сообщение для текущей группы
+                if (message.groupId === currentGroup.id) {
+                    addMessageToChat(message, message.from === currentUser.username);
+                    scrollToBottom();
+                }
+            });
+        }
+
         // Отправка сообщения в группу
         async function sendMessage() {
             const messageText = document.getElementById('messageInput').value.trim();
@@ -956,6 +976,7 @@
 
             } catch (error) {
                 console.error('Ошибка отправки:', error);
+                alert('Ошибка отправки сообщения: ' + error.message);
             }
         }
 
@@ -1052,6 +1073,10 @@
                     online: false,
                     lastSeen: Date.now()
                 });
+                
+                if (messagesListener) {
+                    messagesListener();
+                }
             }
             
             currentUser = null;
@@ -1085,21 +1110,7 @@
             document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') registerUser();
             });
-            
-            // Тест Firebase подключения
-            testFirebaseConnection();
         });
-
-        // Тест подключения к Firebase
-        async function testFirebaseConnection() {
-            try {
-                await database.ref('.info/connected').once('value');
-                console.log('✅ Подключение к Firebase установлено');
-            } catch (error) {
-                console.error('❌ Ошибка подключения к Firebase:', error);
-                showStatus('⚠️ Ошибка подключения к Firebase. Проверьте конфигурацию.', 'error');
-            }
-        }
 
         // Обновление онлайн статуса при закрытии
         window.addEventListener('beforeunload', function() {
