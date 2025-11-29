@@ -71,7 +71,7 @@
         }
         .group-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
@@ -414,7 +414,7 @@
             
             <div id="loginForm">
                 <div class="form-group">
-                    <input type="text" id="loginUsername" placeholder="Логин или email" maxlength="50">
+                    <input type="text" id="loginUsername" placeholder="Логин" maxlength="20">
                 </div>
                 <div class="form-group">
                     <input type="password" id="loginPassword" placeholder="Пароль">
@@ -425,9 +425,6 @@
             <div id="registerForm" style="display: none;">
                 <div class="form-group">
                     <input type="text" id="regUsername" placeholder="Логин (уникальный)" maxlength="20">
-                </div>
-                <div class="form-group">
-                    <input type="email" id="regEmail" placeholder="Email" maxlength="50">
                 </div>
                 <div class="form-group">
                     <input type="text" id="regDisplayName" placeholder="Отображаемое имя" maxlength="30">
@@ -555,14 +552,18 @@
         // Регистрация пользователя
         async function registerUser() {
             const username = document.getElementById('regUsername').value.trim().toLowerCase();
-            const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const displayName = document.getElementById('regDisplayName').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
 
             // Валидация
-            if (!username || !email || !displayName || !password) {
+            if (!username || !displayName || !password) {
                 showStatus('❌ Заполните все поля', 'error');
+                return;
+            }
+
+            if (username.length < 3) {
+                showStatus('❌ Логин должен быть не менее 3 символов', 'error');
                 return;
             }
 
@@ -586,19 +587,11 @@
                     return;
                 }
 
-                // Проверяем уникальность email
-                const emailSnapshot = await database.ref('users').orderByChild('email').equalTo(email).once('value');
-                if (emailSnapshot.exists()) {
-                    showStatus('❌ Этот email уже используется', 'error');
-                    return;
-                }
-
                 // Создаем пользователя
                 const userData = {
                     username: username,
-                    email: email,
                     displayName: displayName,
-                    password: btoa(password), // Простое шифрование (в реальном приложении используйте хеширование)
+                    password: btoa(password), // Простое шифрование
                     registeredAt: new Date().toISOString(),
                     lastSeen: Date.now(),
                     online: true
@@ -621,10 +614,10 @@
 
         // Вход пользователя
         async function loginUser() {
-            const login = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
-            if (!login || !password) {
+            if (!username || !password) {
                 showStatus('❌ Заполните все поля', 'error');
                 return;
             }
@@ -632,27 +625,15 @@
             try {
                 showStatus('🔍 Проверяем данные...', 'info');
 
-                // Ищем пользователя по логину или email
-                const snapshot = await database.ref('users').orderByChild('username').equalTo(login).once('value');
-                let userData = null;
-                let userKey = null;
-
-                if (snapshot.exists()) {
-                    userKey = Object.keys(snapshot.val())[0];
-                    userData = snapshot.val()[userKey];
-                } else {
-                    // Ищем по email
-                    const emailSnapshot = await database.ref('users').orderByChild('email').equalTo(login).once('value');
-                    if (emailSnapshot.exists()) {
-                        userKey = Object.keys(emailSnapshot.val())[0];
-                        userData = emailSnapshot.val()[userKey];
-                    }
-                }
-
-                if (!userData) {
+                // Ищем пользователя по логину
+                const snapshot = await database.ref('users/' + username).once('value');
+                
+                if (!snapshot.exists()) {
                     showStatus('❌ Пользователь не найден', 'error');
                     return;
                 }
+
+                const userData = snapshot.val();
 
                 // Проверяем пароль
                 if (btoa(password) !== userData.password) {
@@ -661,7 +642,7 @@
                 }
 
                 // Обновляем онлайн статус
-                await database.ref('users/' + userData.username).update({
+                await database.ref('users/' + username).update({
                     lastSeen: Date.now(),
                     online: true
                 });
@@ -835,71 +816,6 @@
             
             loadUserGroups();
             startRealTimeListeners();
-        }
-
-        // Остальные функции (sendMessage, addMessageToChat, и т.д.) остаются похожими
-        // но адаптированными для работы с группами
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedUser = localStorage.getItem('firebase_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showChatInterface();
-            }
-        });
-
-        // Обработка Enter в формах
-        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loginUser();
-        });
-
-        document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') registerUser();
-        });
-
-        // Показать статус
-        function showStatus(message, type = 'info') {
-            const statusDiv = document.getElementById('authStatus');
-            statusDiv.innerHTML = `<div class="status status-${type}">${message}</div>`;
-        }
-
-        // Показать формы
-        function showLoginForm() {
-            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('registerForm').style.display = 'none';
-        }
-
-        function showRegisterForm() {
-            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('registerForm').style.display = 'block';
-            document.getElementById('loginForm').style.display = 'none';
-        }
-
-        // Выход
-        function logout() {
-            if (currentUser) {
-                database.ref('users/' + currentUser.username).update({
-                    online: false,
-                    lastSeen: Date.now()
-                });
-            }
-            
-            currentUser = null;
-            localStorage.removeItem('firebase_user');
-            location.reload();
-        }
-
-        // Показать модальное окно создания группы
-        function showCreateGroupModal() {
-            document.getElementById('groupName').value = '';
-            document.getElementById('groupDescription').value = '';
-            document.getElementById('groupType').value = 'public';
-            document.getElementById('passwordGroup').style.display = 'none';
-            showModal('createGroupModal');
         }
 
         // Загрузка информации о группе
@@ -1090,6 +1006,68 @@
                 }
             }, 30000);
         }
+
+        // Показать статус
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('authStatus');
+            statusDiv.innerHTML = `<div class="status status-${type}">${message}</div>`;
+        }
+
+        // Показать формы
+        function showLoginForm() {
+            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function showRegisterForm() {
+            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+        }
+
+        // Выход
+        function logout() {
+            if (currentUser) {
+                database.ref('users/' + currentUser.username).update({
+                    online: false,
+                    lastSeen: Date.now()
+                });
+            }
+            
+            currentUser = null;
+            localStorage.removeItem('firebase_user');
+            location.reload();
+        }
+
+        // Показать модальное окно создания группы
+        function showCreateGroupModal() {
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupDescription').value = '';
+            document.getElementById('groupType').value = 'public';
+            document.getElementById('passwordGroup').style.display = 'none';
+            showModal('createGroupModal');
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedUser = localStorage.getItem('firebase_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showChatInterface();
+            }
+        });
+
+        // Обработка Enter в формах
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginUser();
+        });
+
+        document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') registerUser();
+        });
 
         // Обновление онлайн статуса при закрытии
         window.addEventListener('beforeunload', function() {
