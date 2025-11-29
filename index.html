@@ -509,7 +509,7 @@
 
     <script>
         // 🔥 ЗАМЕНИТЕ ЭТУ КОНФИГУРАЦИЮ НА СВОЮ ИЗ FIREBASE
-        const firebaseConfig = {
+       const firebaseConfig = {
   apiKey: "AIzaSyD9MIiOsdps10zDZhaNjnkPj--QXX0o8yc",
   authDomain: "messenger-f7cbd.firebaseapp.com",
   databaseURL: "https://messenger-f7cbd-default-rtdb.europe-west1.firebasedatabase.app",
@@ -517,7 +517,6 @@
   storageBucket: "messenger-f7cbd.firebasestorage.app",
   messagingSenderId: "584298804782",
   appId: "1:584298804782:web:c2fc0a168311aca5ed11bf"
-
         // Инициализация Firebase
         let app;
         try {
@@ -531,8 +530,6 @@
         const database = firebase.database();
         let currentUser = null;
         let currentGroup = null;
-        let messagesListener = null;
-        let groupsListener = null;
 
         // Показать/скрыть модальное окно
         function showModal(modalId) {
@@ -549,15 +546,19 @@
                 this.value === 'private' ? 'block' : 'none';
         });
 
-        // Регистрация пользователя
+        // Регистрация пользователя - ИСПРАВЛЕННАЯ ВЕРСИЯ
         async function registerUser() {
+            console.log('🔔 Функция registerUser вызвана'); // Отладочное сообщение
+            
             const username = document.getElementById('regUsername').value.trim().toLowerCase();
             const displayName = document.getElementById('regDisplayName').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
 
+            console.log('📝 Данные:', { username, displayName, password, confirmPassword });
+
             // Валидация
-            if (!username || !displayName || !password) {
+            if (!username || !displayName || !password || !confirmPassword) {
                 showStatus('❌ Заполните все поля', 'error');
                 return;
             }
@@ -581,8 +582,10 @@
                 showStatus('🔍 Проверяем данные...', 'info');
 
                 // Проверяем уникальность логина
-                const userSnapshot = await database.ref('users').orderByChild('username').equalTo(username).once('value');
-                if (userSnapshot.exists()) {
+                const snapshot = await database.ref('users/' + username).once('value');
+                console.log('📊 Результат проверки пользователя:', snapshot.exists());
+                
+                if (snapshot.exists()) {
                     showStatus('❌ Этот логин уже занят', 'error');
                     return;
                 }
@@ -597,23 +600,28 @@
                     online: true
                 };
 
+                console.log('💾 Сохраняем пользователя:', userData);
+                
                 await database.ref('users/' + username).set(userData);
                 currentUser = userData;
                 localStorage.setItem('firebase_user', JSON.stringify(currentUser));
 
-                showStatus('✅ Аккаунт создан!', 'success');
+                showStatus('✅ Аккаунт создан! Загружаем чат...', 'success');
                 
                 setTimeout(() => {
                     showChatInterface();
-                }, 1000);
+                }, 1500);
 
             } catch (error) {
+                console.error('❌ Ошибка регистрации:', error);
                 showStatus('❌ Ошибка регистрации: ' + error.message, 'error');
             }
         }
 
-        // Вход пользователя
+        // Вход пользователя - ИСПРАВЛЕННАЯ ВЕРСИЯ
         async function loginUser() {
+            console.log('🔔 Функция loginUser вызвана');
+            
             const username = document.getElementById('loginUsername').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
@@ -627,6 +635,7 @@
 
                 // Ищем пользователя по логину
                 const snapshot = await database.ref('users/' + username).once('value');
+                console.log('📊 Найден пользователь:', snapshot.exists());
                 
                 if (!snapshot.exists()) {
                     showStatus('❌ Пользователь не найден', 'error');
@@ -634,6 +643,7 @@
                 }
 
                 const userData = snapshot.val();
+                console.log('👤 Данные пользователя:', userData);
 
                 // Проверяем пароль
                 if (btoa(password) !== userData.password) {
@@ -650,13 +660,14 @@
                 currentUser = userData;
                 localStorage.setItem('firebase_user', JSON.stringify(currentUser));
 
-                showStatus('✅ Успешный вход!', 'success');
+                showStatus('✅ Успешный вход! Загружаем чат...', 'success');
                 
                 setTimeout(() => {
                     showChatInterface();
-                }, 1000);
+                }, 1500);
 
             } catch (error) {
+                console.error('❌ Ошибка входа:', error);
                 showStatus('❌ Ошибка входа: ' + error.message, 'error');
             }
         }
@@ -808,6 +819,7 @@
 
         // Показать интерфейс чата
         function showChatInterface() {
+            console.log('🎯 Показываем интерфейс чата');
             document.getElementById('authSection').style.display = 'none';
             document.getElementById('chatSection').style.display = 'block';
             
@@ -879,7 +891,14 @@
             document.querySelectorAll('.group-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.target.classList.add('active');
+            // Находим и подсвечиваем текущую группу
+            const groupItems = document.querySelectorAll('.group-item');
+            for (let item of groupItems) {
+                if (item.textContent.includes(group.name)) {
+                    item.classList.add('active');
+                    break;
+                }
+            }
         }
 
         // Загрузка сообщений группы
@@ -986,15 +1005,12 @@
 
         // Слушатели реального времени
         function startRealTimeListeners() {
-            // Слушаем новые сообщения в текущей группе
-            if (messagesListener) messagesListener();
-            
             // Слушаем обновления групп
-            if (groupsListener) groupsListener();
-            
-            groupsListener = database.ref('user_groups/' + currentUser.username).on('value', () => {
-                loadUserGroups();
-            });
+            if (currentUser) {
+                database.ref('user_groups/' + currentUser.username).on('value', () => {
+                    loadUserGroups();
+                });
+            }
 
             // Обновляем онлайн статус
             setInterval(() => {
@@ -1053,21 +1069,36 @@
 
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Страница загружена');
             const savedUser = localStorage.getItem('firebase_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 showChatInterface();
             }
+            
+            // Добавляем обработчики Enter
+            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') loginUser();
+            });
+
+            document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') registerUser();
+            });
+            
+            // Тест Firebase подключения
+            testFirebaseConnection();
         });
 
-        // Обработка Enter в формах
-        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loginUser();
-        });
-
-        document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') registerUser();
-        });
+        // Тест подключения к Firebase
+        async function testFirebaseConnection() {
+            try {
+                await database.ref('.info/connected').once('value');
+                console.log('✅ Подключение к Firebase установлено');
+            } catch (error) {
+                console.error('❌ Ошибка подключения к Firebase:', error);
+                showStatus('⚠️ Ошибка подключения к Firebase. Проверьте конфигурацию.', 'error');
+            }
+        }
 
         // Обновление онлайн статуса при закрытии
         window.addEventListener('beforeunload', function() {
