@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase - Групповой чат</title>
+    <title>Artemusheek Мессенджер с регистрацией</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <style>
@@ -19,135 +19,170 @@
             padding: 20px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             overflow: hidden;
-            display: flex;
-            height: 90vh;
         }
-        
-        /* Боковая панель */
-        .sidebar {
-            width: 300px;
+        .header {
             background: #2c3e50;
             color: white;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
+            text-align: center;
         }
-        .user-profile {
-            background: #34495e;
-            padding: 15px;
+        .content {
+            padding: 30px;
+        }
+
+        /* Стили для регистрации */
+        #registrationSection {
+            text-align: center;
+        }
+        .registration-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #f8f9fa;
             border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .groups-section {
-            flex: 1;
-            background: #34495e;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            overflow-y: auto;
-        }
-        .group-item {
-            padding: 12px;
-            margin: 8px 0;
-            background: #4a6278;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
             border-left: 4px solid #667eea;
         }
-        .group-item:hover {
-            background: #556f88;
-            transform: translateX(5px);
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
         }
-        .group-item.active {
-            background: #667eea;
-            border-left-color: #764ba2;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
         }
-        .group-header {
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        /* Стили для чата */
+        #chatSection {
+            display: none;
+        }
+        .user-profile {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        .chat-controls {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 10px;
             margin-bottom: 15px;
         }
-        .create-group-btn {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        /* Основной чат */
-        .chat-main {
+        .chat-controls input {
             flex: 1;
-            display: flex;
-            flex-direction: column;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
         }
-        .chat-header {
-            background: #34495e;
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .group-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .group-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #667eea;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
+        .chat-window {
+            height: 400px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            background: white;
             overflow-y: auto;
-            background: #f8f9fa;
+            margin-bottom: 15px;
         }
         .message {
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 15px;
-            max-width: 70%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
             position: relative;
-            animation: slideIn 0.3s ease-out;
         }
         .my-message {
             background: #007bff;
             color: white;
             margin-left: auto;
-            border-bottom-right-radius: 5px;
+            text-align: right;
         }
         .other-message {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-bottom-left-radius: 5px;
+            background: #e9ecef;
+            color: #333;
         }
-        .message-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
+        .message-sender {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
         }
-        .message-avatar {
-            width: 32px;
-            height: 32px;
+        .message-time {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        /* Аватарки */
+        .avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: #667eea;
             color: white;
@@ -157,841 +192,536 @@
             font-weight: bold;
             margin-right: 10px;
         }
-        .message-sender {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .message-time {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        .message-text {
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-        
-        /* Панель ввода */
-        .chat-input {
-            padding: 20px;
-            background: white;
-            border-top: 2px solid #e9ecef;
-        }
-        .input-group {
+        .message-header {
             display: flex;
-            gap: 10px;
-        }
-        .message-input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-        }
-        .message-input:focus {
-            border-color: #667eea;
-        }
-        .send-btn {
-            padding: 15px 25px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .send-btn:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-        }
-        
-        /* Модальные окна */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            min-width: 400px;
-            max-width: 500px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-        }
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
             margin-bottom: 5px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .form-group input:focus {
-            border-color: #667eea;
-        }
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-primary {
-            background: #667eea;
-            color: white;
-            width: 100%;
-        }
-        .btn-primary:hover {
-            background: #764ba2;
-        }
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        
-        /* Аутентификация */
-        .auth-section {
-            max-width: 400px;
-            margin: 50px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .status {
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            text-align: center;
-        }
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .status-info {
-            background: #cce7ff;
-            color: #004085;
         }
 
-        /* Анимации */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Индикатор загрузки */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
         }
-
-        /* Прокрутка */
-        .chat-messages::-webkit-scrollbar,
-        .groups-section::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-messages::-webkit-scrollbar-track,
-        .groups-section::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .chat-messages::-webkit-scrollbar-thumb,
-        .groups-section::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <!-- Модальное окно создания группы -->
-    <div id="createGroupModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>➕ Создать новую группу</h3>
-                <button class="close-btn" onclick="closeModal('createGroupModal')">×</button>
-            </div>
-            <div class="form-group">
-                <label>Название группы:</label>
-                <input type="text" id="groupName" placeholder="Введите название группы" maxlength="50">
-            </div>
-            <div class="form-group">
-                <label>Описание:</label>
-                <textarea id="groupDescription" placeholder="Описание группы (необязательно)" rows="3" maxlength="200"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Тип группы:</label>
-                <select id="groupType">
-                    <option value="public">🔓 Публичная (все могут присоединиться)</option>
-                    <option value="private">🔒 Приватная (только по приглашению)</option>
-                </select>
-            </div>
-            <div class="form-group" id="passwordGroup" style="display: none;">
-                <label>Пароль для входа:</label>
-                <input type="password" id="groupPassword" placeholder="Придумайте пароль">
-            </div>
-            <button class="btn btn-primary" onclick="createGroup()">Создать группу</button>
-        </div>
+    <div class="notification" id="notification">
+        📨 Новое сообщение!
     </div>
 
-    <!-- Модальное окно входа в группу -->
-    <div id="joinGroupModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔐 Вход в группу</h3>
-                <button class="close-btn" onclick="closeModal('joinGroupModal')">×</button>
-            </div>
-            <div id="joinGroupInfo"></div>
-            <div class="form-group" id="passwordInputGroup">
-                <label>Пароль группы:</label>
-                <input type="password" id="joinGroupPassword" placeholder="Введите пароль">
-            </div>
-            <button class="btn btn-primary" onclick="joinGroup()">Войти в группу</button>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Artemusheek Мессенджер</h1>
+            <p id="headerSubtitle">Регистрация и реальные сообщения!</p>
         </div>
-    </div>
 
-    <!-- Секция аутентификации -->
-    <section id="authSection">
-        <div class="auth-section">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🔑 Вход в чат</h2>
-            
-            <div id="loginForm">
-                <div class="form-group">
-                    <input type="text" id="loginUsername" placeholder="Ваш логин" maxlength="20">
+        <div class="content">
+            <!-- Секция регистрации -->
+            <section id="registrationSection">
+                <div class="registration-form">
+                    <h2 style="margin-bottom: 30px; color: #2c3e50;">📝 Регистрация в artemusheek</h2>
+                    <h2 style="margin-bottom: 30px; color: #2c3e50;">📝 Регистрация в artemusheek messenger</h2>
+
+                    <div class="form-group">
+                        <label for="regUsername">Ваш никнейм:</label>
+                        <input type="text" id="regUsername" placeholder="Придумайте уникальный ник" maxlength="20">
+                        <small style="color: #666;">Это имя будут видеть другие пользователи</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regUserCode">Ваш уникальный код:</label>
+                        <input type="text" id="regUserCode" placeholder="Например: superuser123" maxlength="15">
+                        <small style="color: #666;">Дайте этот код друзьям для общения</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regAvatar">Цвет аватарки:</label>
+                        <input type="color" id="regAvatar" value="#667eea" style="height: 50px;">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="registerUser()">
+                        ✅ Зарегистрироваться в artemusheek messenger
+                    </button>
+
+                    <div id="registrationStatus" style="margin-top: 15px; padding: 10px; border-radius: 5px; display: none;"></div>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="loginPassword" placeholder="Ваш пароль">
-                </div>
-                <button class="btn btn-primary" onclick="loginUser()">Войти в чат</button>
-            </div>
-            
-            <div id="authStatus"></div>
+            </section>
 
-            <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 5px; text-align: center;">
-                <h4>💬 Групповой чат</h4>
-                <p>Для входа используйте существующий аккаунт</p>
-                <p><small>Логин: user1 | Пароль: 123456</small></p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Основной интерфейс чата -->
-    <section id="chatSection" style="display: none;">
-        <div class="container">
-            <!-- Боковая панель -->
-            <div class="sidebar">
+            <!-- Секция чата -->
+            <section id="chatSection">
+                <!-- Профиль пользователя -->
                 <div class="user-profile">
-                    <h3 id="sidebarUserName">Пользователь</h3>
-                    <p>Логин: <strong id="sidebarUserLogin"></strong></p>
-                    <p style="color: #2ecc71;">● Онлайн</p>
-                </div>
-                
-                <div class="groups-section">
-                    <div class="group-header">
-                        <h4>💬 Мои группы</h4>
-                        <button class="create-group-btn" onclick="showCreateGroupModal()">➕</button>
-                    </div>
-                    <div id="groupsList">
-                        <!-- Список групп будет здесь -->
-                    </div>
-                </div>
-                
-                <button class="btn" onclick="logout()" style="background: #e74c3c; color: white; width: 100%;">
-                    🚪 Выйти
-                </button>
-            </div>
-
-            <!-- Основной чат -->
-            <div class="chat-main">
-                <div class="chat-header">
-                    <div class="group-info">
-                        <div class="group-avatar" id="currentGroupAvatar">💬</div>
-                        <div>
-                            <h2 id="currentGroupName">Выберите группу</h2>
-                            <p id="currentGroupDescription">Выберите группу из списка слева</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <h3>👋 Привет, <span id="displayUserName"></span>!</h3>
+                            <p>Ваш код: <strong id="displayUserCode"></strong> • 
+                               <span id="onlineStatus" style="color: #28a745;">● Онлайн в artemusheek messenger</span></p>
                         </div>
-                    </div>
-                    <div id="groupMembersCount" style="color: #bdc3c7;">
-                        Участников: 0
+                        <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
                     </div>
                 </div>
-                
-                <div class="chat-messages" id="chatMessages">
+
+                <!-- Поиск пользователя -->
+                <div class="chat-controls">
+                    <input type="text" id="targetUserCode" placeholder="✍️ Введите код пользователя...">
+                    <button class="btn btn-success" onclick="checkUserAndStartChat()">🔍 Найти и начать чат</button>
+                </div>
+
+                <div id="userSearchResult" style="margin-bottom: 15px; display: none;"></div>
+
+                <!-- Окно чата -->
+                <div class="chat-window" id="chatWindow">
                     <div style="text-align: center; color: #666; padding: 50px;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">👋</div>
-                        <h3>Добро пожаловать в групповой чат!</h3>
-                        <p>Выберите группу слева или создайте новую</p>
+                        <div style="font-size: 48px; margin-bottom: 20px;">💭</div>
+                        <h3>Начните общение в artemusheek messenger!</h3>
+                        <p>Найдите пользователя по коду и отправьте первое сообщение</p>
                     </div>
                 </div>
-                
-                <div class="chat-input">
-                    <div class="input-group">
-                        <input type="text" class="message-input" id="messageInput" 
-                               placeholder="Напишите сообщение в группу..." maxlength="500" disabled>
-                        <button class="send-btn" onclick="sendMessage()" disabled>📤</button>
-                    </div>
+
+                <!-- Поле ввода сообщения -->
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="messageInput" placeholder="💬 Введите ваше сообщение..." style="flex: 1;">
+                    <button class="btn btn-primary" onclick="sendMessage()">📤 Отправить</button>
                 </div>
-            </div>
+
+                <!-- Информация о текущем чате -->
+                <div id="currentChatInfo" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; display: none;">
+                    💬 Чат с: <strong id="currentChatWith">-</strong>
+                    <span id="userOnlineStatus" style="margin-left: 10px;"></span>
+                </div>
+            </section>
         </div>
-    </section>
+    </div>
 
     <script>
         // 🔥 ЗАМЕНИТЕ ЭТУ КОНФИГУРАЦИЮ НА СВОЮ ИЗ FIREBASE
-const firebaseConfig = {
+        const firebaseConfig = {
   apiKey: "AIzaSyD9MIiOsdps10zDZhaNjnkPj--QXX0o8yc",
   authDomain: "messenger-f7cbd.firebaseapp.com",
   databaseURL: "https://messenger-f7cbd-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "messenger-f7cbd",
   storageBucket: "messenger-f7cbd.firebasestorage.app",
   messagingSenderId: "584298804782",
-  appId: "1:584298804782:web:c2fc0a168311aca5ed11bf"
+  appId: "1:584298804782:web:c2fc0a168311aca5ed11bf",
+  measurementId: "G-9WT3KHJ4GM"
+        };
 
-        
         // Инициализация Firebase
-        let app;
-        try {
-            app = firebase.initializeApp(firebaseConfig);
-            console.log('✅ Firebase инициализирован');
-        } catch (error) {
-            app = firebase.app();
-            console.log('✅ Firebase уже инициализирован');
-        }
-
+        firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+
         let currentUser = null;
-        let currentGroup = null;
+        let currentChatUser = null;
         let messagesListener = null;
 
-        // Показать/скрыть модальное окно
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Показать поле пароля при выборе приватной группы
-        document.getElementById('groupType').addEventListener('change', function() {
-            document.getElementById('passwordGroup').style.display = 
-                this.value === 'private' ? 'block' : 'none';
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем, есть ли сохраненный пользователь
+            const savedUser = localStorage.getItem('firebase_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                checkUserExists(currentUser.code).then(exists => {
+                    if (exists) {
+                        showChatSection();
+                    } else {
+                        localStorage.removeItem('firebase_user');
+                        showRegistrationSection();
+                    }
+                });
+            } else {
+                showRegistrationSection();
+            }
         });
 
-        // Вход пользователя
-        async function loginUser() {
-            console.log('🔔 Функция loginUser вызвана');
-            
-            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
-            const password = document.getElementById('loginPassword').value;
+        // Показать секцию регистрации
+        function showRegistrationSection() {
+            document.getElementById('registrationSection').style.display = 'block';
+            document.getElementById('chatSection').style.display = 'none';
+            document.getElementById('headerSubtitle').textContent = 'Сначала зарегистрируйтесь в Firebase!';
+        }
 
-            if (!username || !password) {
-                showStatus('❌ Заполните все поля', 'error');
+        // Показать секцию чата
+        function showChatSection() {
+            document.getElementById('registrationSection').style.display = 'none';
+            document.getElementById('chatSection').style.display = 'block';
+            document.getElementById('headerSubtitle').textContent = `Общайтесь, ${currentUser.name}!`;
+
+            // Обновляем информацию о пользователе
+            document.getElementById('displayUserName').textContent = currentUser.name;
+            document.getElementById('displayUserCode').textContent = currentUser.code;
+
+            // Обновляем онлайн статус
+            updateUserOnlineStatus(true);
+        }
+
+        // Проверить существование пользователя
+        async function checkUserExists(userCode) {
+            try {
+                const snapshot = await database.ref('users/' + userCode).once('value');
+                return snapshot.exists();
+            } catch (error) {
+                console.error('Ошибка проверки пользователя:', error);
+                return false;
+            }
+        }
+
+        // Регистрация пользователя в Firebase
+        async function registerUser() {
+            const username = document.getElementById('regUsername').value.trim();
+            const usercode = document.getElementById('regUserCode').value.trim().toLowerCase();
+            const avatarColor = document.getElementById('regAvatar').value;
+
+            if (!username || !usercode) {
+                showRegistrationStatus('Пожалуйста, заполните все поля', 'error');
                 return;
             }
 
+            if (usercode.length < 3) {
+                showRegistrationStatus('Код должен быть не менее 3 символов', 'error');
+                return;
+            }
+
+            // Показываем загрузку
+            showRegistrationStatus('Проверяем доступность кода...', 'loading');
+
+            // Проверяем, свободен ли код
+            const userExists = await checkUserExists(usercode);
+            if (userExists) {
+                showRegistrationStatus('Этот код уже занят! Выберите другой.', 'error');
+                return;
+            }
+
+            // Регистрируем пользователя в Firebase
             try {
-                showStatus('🔍 Проверяем данные...', 'info');
-
-                // Ищем пользователя по логину
-                const snapshot = await database.ref('users/' + username).once('value');
-                console.log('📊 Найден пользователь:', snapshot.exists());
-                
-                if (!snapshot.exists()) {
-                    showStatus('❌ Пользователь не найден', 'error');
-                    return;
-                }
-
-                const userData = snapshot.val();
-                console.log('👤 Данные пользователя:', userData);
-
-                // Проверяем пароль
-                if (btoa(password) !== userData.password) {
-                    showStatus('❌ Неверный пароль', 'error');
-                    return;
-                }
-
-                // Обновляем онлайн статус
-                await database.ref('users/' + username).update({
+                const userData = {
+                    name: username,
+                    code: usercode,
+                    avatarColor: avatarColor,
+                    registeredAt: new Date().toISOString(),
                     lastSeen: Date.now(),
                     online: true
-                });
+                };
 
+                await database.ref('users/' + usercode).set(userData);
+
+                // Сохраняем локально
                 currentUser = userData;
                 localStorage.setItem('firebase_user', JSON.stringify(currentUser));
 
-                showStatus('✅ Успешный вход! Загружаем чат...', 'success');
-                
+                showRegistrationStatus('✅ Регистрация успешна! Подключаемся...', 'success');
+
                 setTimeout(() => {
-                    showChatInterface();
+                    showChatSection();
+                    showNotification('🔥 Добро пожаловать в artemusheek messenger!');
                 }, 1000);
 
             } catch (error) {
-                console.error('❌ Ошибка входа:', error);
-                showStatus('❌ Ошибка входа: ' + error.message, 'error');
+                showRegistrationStatus('Ошибка регистрации: ' + error.message, 'error');
             }
         }
 
-        // Создание группы
-        async function createGroup() {
-            const name = document.getElementById('groupName').value.trim();
-            const description = document.getElementById('groupDescription').value.trim();
-            const type = document.getElementById('groupType').value;
-            const password = document.getElementById('groupPassword').value;
+        // Поиск пользователя и начало чата
+        async function checkUserAndStartChat() {
+            const targetCode = document.getElementById('targetUserCode').value.trim().toLowerCase();
 
-            if (!name) {
-                alert('Введите название группы');
+            if (!targetCode) {
+                alert('Введите код пользователя');
                 return;
             }
 
-            if (type === 'private' && !password) {
-                alert('Для приватной группы нужен пароль');
+            if (targetCode === currentUser.code) {
+                alert('Нельзя писать самому себе!');
                 return;
             }
 
-            try {
-                const groupId = 'group_' + Date.now();
-                const groupData = {
-                    id: groupId,
-                    name: name,
-                    description: description || 'Без описания',
-                    type: type,
-                    password: type === 'private' ? btoa(password) : null,
-                    createdBy: currentUser.username,
-                    createdAt: Date.now(),
-                    members: {
-                        [currentUser.username]: {
-                            username: currentUser.username,
-                            displayName: currentUser.displayName,
-                            joinedAt: Date.now(),
-                            role: 'admin'
-                        }
-                    }
-                };
-
-                await database.ref('groups/' + groupId).set(groupData);
-                
-                // Добавляем группу в список пользователя
-                await database.ref('user_groups/' + currentUser.username + '/' + groupId).set({
-                    groupId: groupId,
-                    groupName: name,
-                    joinedAt: Date.now()
-                });
-
-                closeModal('createGroupModal');
-                showStatus('✅ Группа создана!', 'success');
-                
-                // Переходим в созданную группу
-                selectGroup(groupId, groupData);
-
-            } catch (error) {
-                alert('Ошибка создания группы: ' + error.message);
-            }
-        }
-
-        // Вход в группу
-        async function joinGroup() {
-            const password = document.getElementById('joinGroupPassword').value;
-            const groupId = document.getElementById('joinGroupModal').dataset.groupId;
-
-            if (!groupId) return;
+            const resultDiv = document.getElementById('userSearchResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loader"></div>';
 
             try {
-                const groupSnapshot = await database.ref('groups/' + groupId).once('value');
-                const group = groupSnapshot.val();
+                const userExists = await checkUserExists(targetCode);
 
-                if (!group) {
-                    alert('Группа не найдена');
-                    return;
-                }
+                if (userExists) {
+                    // Получаем информацию о пользователе
+                    const snapshot = await database.ref('users/' + targetCode).once('value');
+                    const userInfo = snapshot.val();
 
-                // Проверяем пароль для приватных групп
-                if (group.type === 'private') {
-                    if (btoa(password) !== group.password) {
-                        alert('Неверный пароль');
-                        return;
-                    }
-                }
+                    currentChatUser = targetCode;
 
-                // Добавляем пользователя в группу
-                await database.ref('groups/' + groupId + '/members/' + currentUser.username).set({
-                    username: currentUser.username,
-                    displayName: currentUser.displayName,
-                    joinedAt: Date.now(),
-                    role: 'member'
-                });
-
-                // Добавляем группу в список пользователя
-                await database.ref('user_groups/' + currentUser.username + '/' + groupId).set({
-                    groupId: groupId,
-                    groupName: group.name,
-                    joinedAt: Date.now()
-                });
-
-                closeModal('joinGroupModal');
-                showStatus('✅ Вы присоединились к группу!', 'success');
-                
-                // Переходим в группу
-                selectGroup(groupId, group);
-
-            } catch (error) {
-                alert('Ошибка входа в группу: ' + error.message);
-            }
-        }
-
-        // Загрузка групп пользователя
-        async function loadUserGroups() {
-            try {
-                const snapshot = await database.ref('user_groups/' + currentUser.username).once('value');
-                const groups = snapshot.val();
-                const groupsList = document.getElementById('groupsList');
-                
-                groupsList.innerHTML = '';
-
-                if (!groups) {
-                    groupsList.innerHTML = `
-                        <div style="text-align: center; color: #bdc3c7; padding: 20px;">
-                            У вас пока нет групп<br>
-                            <button class="create-group-btn" onclick="showCreateGroupModal()" 
-                                    style="margin-top: 10px; background: #27ae60;">
-                                Создать первую
+                    resultDiv.innerHTML = `
+                        <div style="background: #d4edda; padding: 10px; border-radius: 5px;">
+                            ✅ Найден пользователь: <strong>${userInfo.name}</strong>
+                            <button class="btn btn-success" onclick="startChatWithUser('${targetCode}', '${userInfo.name}')" style="margin-left: 10px; padding: 5px 10px;">
+                                💬 Начать чат
                             </button>
                         </div>
                     `;
-                    return;
-                }
-
-                Object.values(groups).forEach(group => {
-                    const groupDiv = document.createElement('div');
-                    groupDiv.className = 'group-item';
-                    groupDiv.innerHTML = `
-                        <div style="font-weight: bold;">${group.groupName}</div>
-                        <div style="font-size: 12px; opacity: 0.8;">Нажмите для входа</div>
-                    `;
-                    groupDiv.onclick = () => loadGroup(group.groupId);
-                    groupsList.appendChild(groupDiv);
-                });
-
-            } catch (error) {
-                console.error('Ошибка загрузки групп:', error);
-            }
-        }
-
-        // Показать интерфейс чата
-        function showChatInterface() {
-            console.log('🎯 Показываем интерфейс чата');
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('chatSection').style.display = 'block';
-            
-            document.getElementById('sidebarUserName').textContent = currentUser.displayName;
-            document.getElementById('sidebarUserLogin').textContent = currentUser.username;
-            
-            loadUserGroups();
-            startRealTimeListeners();
-        }
-
-        // Загрузка информации о группе
-        async function loadGroup(groupId) {
-            try {
-                const snapshot = await database.ref('groups/' + groupId).once('value');
-                const group = snapshot.val();
-                
-                if (!group) {
-                    alert('Группа не найдена');
-                    return;
-                }
-
-                // Проверяем, является ли пользователь участником
-                if (!group.members || !group.members[currentUser.username]) {
-                    showJoinGroupModal(groupId, group);
-                    return;
-                }
-
-                selectGroup(groupId, group);
-
-            } catch (error) {
-                console.error('Ошибка загрузки группы:', error);
-            }
-        }
-
-        // Показать модальное окно входа в группу
-        function showJoinGroupModal(groupId, group) {
-            document.getElementById('joinGroupModal').dataset.groupId = groupId;
-            document.getElementById('joinGroupInfo').innerHTML = `
-                <h4>${group.name}</h4>
-                <p>${group.description}</p>
-                <p><strong>Тип:</strong> ${group.type === 'private' ? '🔒 Приватная' : '🔓 Публичная'}</p>
-            `;
-            
-            document.getElementById('passwordInputGroup').style.display = 
-                group.type === 'private' ? 'block' : 'none';
-            
-            showModal('joinGroupModal');
-        }
-
-        // Выбор группы
-        function selectGroup(groupId, group) {
-            currentGroup = group;
-            
-            // Обновляем интерфейс
-            document.getElementById('currentGroupName').textContent = group.name;
-            document.getElementById('currentGroupDescription').textContent = group.description;
-            document.getElementById('currentGroupAvatar').textContent = group.name.charAt(0).toUpperCase();
-            document.getElementById('groupMembersCount').textContent = `Участников: ${Object.keys(group.members || {}).length}`;
-            
-            // Активируем поле ввода
-            document.getElementById('messageInput').disabled = false;
-            document.querySelector('.send-btn').disabled = false;
-            document.getElementById('messageInput').placeholder = `Напишите сообщение в ${group.name}...`;
-            
-            // Загружаем сообщения группы
-            loadGroupMessages(groupId);
-            startMessagesListener(groupId);
-            
-            // Подсвечиваем выбранную группу
-            document.querySelectorAll('.group-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            // Находим и подсвечиваем текущую группу
-            const groupItems = document.querySelectorAll('.group-item');
-            for (let item of groupItems) {
-                if (item.textContent.includes(group.name)) {
-                    item.classList.add('active');
-                    break;
-                }
-            }
-        }
-
-        // Загрузка сообщений группы
-        async function loadGroupMessages(groupId) {
-            try {
-                const snapshot = await database.ref('group_messages/' + groupId).orderByChild('timestamp').limitToLast(100).once('value');
-                const messages = snapshot.val();
-                const chatMessages = document.getElementById('chatMessages');
-                
-                chatMessages.innerHTML = '';
-                
-                if (!messages) {
-                    chatMessages.innerHTML = `
-                        <div style="text-align: center; color: #666; padding: 50px;">
-                            <h3>Пока нет сообщений</h3>
-                            <p>Будьте первым!</p>
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #f8d7da; padding: 10px; border-radius: 5px;">
+                            ❌ Пользователь с кодом "${targetCode}" не найден
                         </div>
                     `;
-                    return;
                 }
-
-                const messagesArray = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
-                
-                messagesArray.forEach(message => {
-                    addMessageToChat(message, message.from === currentUser.username);
-                });
-
-                scrollToBottom();
-
             } catch (error) {
-                console.error('Ошибка загрузки сообщений:', error);
+                resultDiv.innerHTML = `
+                    <div style="background: #f8d7da; padding: 10px; border-radius: 5px;">
+                        ❌ Ошибка поиска: ${error.message}
+                    </div>
+                `;
             }
         }
 
-        // Слушатель сообщений в реальном времени
-        function startMessagesListener(groupId) {
+        // Начать чат с пользователем
+        function startChatWithUser(userCode, userName) {
+            currentChatUser = userCode;
+            document.getElementById('currentChatWith').textContent = `${userName} (${userCode})`;
+            document.getElementById('currentChatInfo').style.display = 'block';
+            document.getElementById('userSearchResult').style.display = 'none';
+
+            // Загружаем историю сообщений
+            loadChatHistory();
+
+            // Слушаем новые сообщения
+            startMessagesListener();
+
+            showNotification(`💬 Чат с ${userName} начат!`);
+        }
+
+        // Отправка сообщения в Firebase
+        async function sendMessage() {
+            if (!currentChatUser) {
+                alert('Сначала выберите пользователя для чата');
+                return;
+            }
+
+            const messageText = document.getElementById('messageInput').value.trim();
+
+            if (!messageText) {
+                alert('Введите сообщение');
+                return;
+            }
+
+            try {
+                // Создаем сообщение
+                const message = {
+                    id: Date.now(),
+                    from: currentUser.code,
+                    fromName: currentUser.name,
+                    to: currentChatUser,
+                    text: messageText,
+                    timestamp: Date.now(),
+                    avatarColor: currentUser.avatarColor,
+                    read: false
+                };
+
+                // Сохраняем в Firebase
+                await database.ref('messages').push(message);
+
+                // Очищаем поле ввода
+                document.getElementById('messageInput').value = '';
+
+                // Обновляем онлайн статус
+                updateUserOnlineStatus(true);
+
+            } catch (error) {
+                alert('Ошибка отправки: ' + error.message);
+            }
+        }
+
+        // Слушатель новых сообщений
+        function startMessagesListener() {
             // Удаляем предыдущий слушатель если есть
             if (messagesListener) {
                 messagesListener();
             }
 
-            // Слушаем новые сообщения в текущей группе
-            messagesListener = database.ref('group_messages/' + groupId).on('child_added', (snapshot) => {
+            messagesListener = database.ref('messages').on('child_added', (snapshot) => {
                 const message = snapshot.val();
-                // Проверяем, что сообщение для текущей группы
-                if (message.groupId === currentGroup.id) {
-                    addMessageToChat(message, message.from === currentUser.username);
-                    scrollToBottom();
+
+                // Показываем сообщение если оно для нас или от нас в текущем чате
+                if ((message.to === currentUser.code && message.from === currentChatUser) || 
+                    (message.from === currentUser.code && message.to === currentChatUser)) {
+
+                    const isMyMessage = message.from === currentUser.code;
+                    addMessageToChat(message, isMyMessage);
+
+                    if (!isMyMessage) {
+                        showNotification(`📨 Новое сообщение от ${message.fromName}`);
+
+                        // Помечаем как прочитанное
+                        database.ref('messages/' + snapshot.key).update({ read: true });
+                    }
                 }
             });
         }
 
-        // Отправка сообщения в группу
-        async function sendMessage() {
-            const messageText = document.getElementById('messageInput').value.trim();
-            
-            if (!messageText || !currentGroup) return;
+        // Загрузка истории чата
+        async function loadChatHistory() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.innerHTML = '<div class="loader"></div>';
 
             try {
-                const message = {
-                    id: Date.now(),
-                    from: currentUser.username,
-                    fromName: currentUser.displayName,
-                    text: messageText,
-                    timestamp: Date.now(),
-                    groupId: currentGroup.id,
-                    userColor: getUserColor(currentUser.username)
-                };
+                const snapshot = await database.ref('messages').once('value');
+                const allMessages = snapshot.val();
+                const chatMessages = [];
 
-                await database.ref('group_messages/' + currentGroup.id).push(message);
-                document.getElementById('messageInput').value = '';
+                // Фильтруем сообщения для текущего чата
+                for (let key in allMessages) {
+                    const msg = allMessages[key];
+                    if ((msg.from === currentUser.code && msg.to === currentChatUser) || 
+                        (msg.from === currentChatUser && msg.to === currentUser.code)) {
+                        chatMessages.push(msg);
+                    }
+                }
 
+                // Сортируем по времени
+                chatMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+                if (chatMessages.length === 0) {
+                    chatWindow.innerHTML = `
+                        <div style="text-align: center; color: #666; padding: 50px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">👋</div>
+                            <h3>Начните диалог!</h3>
+                            <p>Отправьте первое сообщение пользователю</p>
+                        </div>
+                    `;
+                } else {
+                    chatWindow.innerHTML = '';
+                    chatMessages.forEach(msg => {
+                        const isMyMessage = msg.from === currentUser.code;
+                        addMessageToChat(msg, isMyMessage);
+                    });
+
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
             } catch (error) {
-                console.error('Ошибка отправки:', error);
-                alert('Ошибка отправки сообщения: ' + error.message);
+                chatWindow.innerHTML = `
+                    <div style="text-align: center; color: #dc3545; padding: 20px;">
+                        ❌ Ошибка загрузки сообщений: ${error.message}
+                    </div>
+                `;
             }
         }
 
         // Добавить сообщение в чат
         function addMessageToChat(message, isMyMessage) {
-            const chatMessages = document.getElementById('chatMessages');
-            
-            if (chatMessages.innerHTML.includes('Пока нет сообщений') || 
-                chatMessages.innerHTML.includes('Добро пожаловать')) {
-                chatMessages.innerHTML = '';
+            const chatWindow = document.getElementById('chatWindow');
+
+            // Убираем placeholder при первом сообщении
+            if (chatWindow.innerHTML.includes('Начните диалог') || chatWindow.querySelector('.loader')) {
+                chatWindow.innerHTML = '';
             }
+
+            const avatarColor = message.avatarColor || '#667eea';
+            const initials = message.fromName.charAt(0).toUpperCase();
+            const time = new Date(message.timestamp).toLocaleTimeString();
 
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isMyMessage ? 'my-message' : 'other-message'}`;
-            
-            const time = new Date(message.timestamp).toLocaleTimeString();
-            const userColor = message.userColor || getUserColor(message.from);
-            
+
             messageDiv.innerHTML = `
                 <div class="message-header">
-                    <div class="message-avatar" style="background: ${userColor}">
-                        ${message.fromName.charAt(0).toUpperCase()}
-                    </div>
+                    <div class="avatar" style="background: ${avatarColor}">${initials}</div>
                     <div class="message-sender">${message.fromName}</div>
                 </div>
                 <div class="message-text">${message.text}</div>
                 <div class="message-time">${time}</div>
             `;
-            
-            chatMessages.appendChild(messageDiv);
+
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // Получить цвет для пользователя
-        function getUserColor(username) {
-            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe', '#43e97b', '#38f9d7', '#fa709a', '#fee140', '#ff6b6b'];
-            let hash = 0;
-            for (let i = 0; i < username.length; i++) {
-                hash = username.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            return colors[Math.abs(hash) % colors.length];
+        // Обновить онлайн статус
+        function updateUserOnlineStatus(online) {
+            if (!currentUser) return;
+
+            database.ref('users/' + currentUser.code).update({
+                online: online,
+                lastSeen: Date.now()
+            });
         }
 
-        // Прокрутка вниз
-        function scrollToBottom() {
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Слушатели реального времени
-        function startRealTimeListeners() {
-            // Слушаем обновления групп
-            if (currentUser) {
-                database.ref('user_groups/' + currentUser.username).on('value', () => {
-                    loadUserGroups();
-                });
-            }
-
-            // Обновляем онлайн статус
-            setInterval(() => {
-                if (currentUser) {
-                    database.ref('users/' + currentUser.username).update({
-                        lastSeen: Date.now(),
-                        online: true
-                    });
-                }
-            }, 30000);
-        }
-
-        // Показать статус
-        function showStatus(message, type = 'info') {
-            const statusDiv = document.getElementById('authStatus');
-            statusDiv.innerHTML = `<div class="status status-${type}">${message}</div>`;
-        }
-
-        // Выход
+        // Выход из системы
         function logout() {
-            if (currentUser) {
-                database.ref('users/' + currentUser.username).update({
-                    online: false,
-                    lastSeen: Date.now()
-                });
-                
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                // Обновляем статус
+                updateUserOnlineStatus(false);
+
+                // Удаляем слушатель
                 if (messagesListener) {
                     messagesListener();
                 }
+
+                // Очищаем данные
+                currentUser = null;
+                currentChatUser = null;
+                localStorage.removeItem('firebase_user');
+
+                showRegistrationSection();
+                showNotification('👋 До свидания! Возвращайтесь!');
             }
-            
-            currentUser = null;
-            localStorage.removeItem('firebase_user');
-            location.reload();
         }
 
-        // Показать модальное окно создания группы
-        function showCreateGroupModal() {
-            document.getElementById('groupName').value = '';
-            document.getElementById('groupDescription').value = '';
-            document.getElementById('groupType').value = 'public';
-            document.getElementById('passwordGroup').style.display = 'none';
-            showModal('createGroupModal');
+        // Показать статус регистрации
+        function showRegistrationStatus(message, type) {
+            const statusDiv = document.getElementById('registrationStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = message;
+
+            statusDiv.style.background = type === 'error' ? '#f8d7da' : 
+                                       type === 'success' ? '#d4edda' : 
+                                       type === 'loading' ? '#fff3cd' : '#f8f9fa';
+            statusDiv.style.color = type === 'error' ? '#721c24' : 
+                                  type === 'success' ? '#155724' : 
+                                  type === 'loading' ? '#856404' : '#333';
         }
 
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Страница загружена');
-            const savedUser = localStorage.getItem('firebase_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showChatInterface();
+        // Показать уведомление
+        function showNotification(text) {
+            const notification = document.getElementById('notification');
+            notification.textContent = text;
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Обработка нажатия Enter
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
-            
-            // Добавляем обработчик Enter
-            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') loginUser();
-            });
         });
 
-        // Обновление онлайн статуса при закрытии
+        document.getElementById('regUserCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                registerUser();
+            }
+        });
+
+        document.getElementById('targetUserCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkUserAndStartChat();
+            }
+        });
+
+        // Обновляем онлайн статус при закрытии страницы
         window.addEventListener('beforeunload', function() {
             if (currentUser) {
-                database.ref('users/' + currentUser.username).update({
-                    online: false,
-                    lastSeen: Date.now()
-                });
+                updateUserOnlineStatus(false);
             }
         });
     </script>
